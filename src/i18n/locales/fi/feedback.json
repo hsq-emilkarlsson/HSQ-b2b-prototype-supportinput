@@ -1,0 +1,52 @@
+{
+  "title": "Palaute",
+  "description": "Arvostamme palautettasi! Jaa ajatuksesi, ehdotuksesi tai ongelmasi.",
+  "header": {
+    "title": "Palautekeskus",
+    "subtitle": "Auta meitä muotoilemaan Husqvarna Portalin tulevaisuutta"
+  },
+  "ai": {
+    "title": "Tekoäly-avustaja",
+    "powered": "Toimii n8n:n avulla",
+    "description": "Avustaja auttaa antamaan palautetta esittämällä jatkokysymyksiä, jotta voimme paremmin toimia ja luokitella"
+  },
+  "chat": {
+    "welcome": "Terve! Mitä haluat muuttaa portaalissa?",
+    "placeholder": "Kysy minulta mitä tahansa..."
+  },
+  "category": {
+    "label": "Kategoria",
+    "general": "Yleinen palaute",
+    "bug": "Virhe/Ongelma",
+    "feature": "Ominaisuuspyyntö",
+    "ui": "UI/Design",
+    "performance": "Suorituskyky"
+  },
+  "message": {
+    "label": "Palautteesi",
+    "placeholder": "Kuvaile palautteesi yksityiskohtaisesti..."
+  },
+  "email": {
+    "label": "Sähköposti (valinnainen)",
+    "placeholder": "sinun@email.fi"
+  },
+  "attachment": {
+    "label": "Liitä tiedosto (valinnainen)",
+    "button": "Valitse tiedosto",
+    "selected": "Valittu tiedosto:",
+    "remove": "Poista"
+  },
+  "attachmentLimits": {
+    "allowedTypesLabel": "Sallitut tiedostotyypit:",
+    "allowedTypes": "PNG, JPG, PDF",
+    "maxFilesLabel": "Tiedostojen enimmäismäärä:",
+    "maxFiles": "5",
+    "maxSizeLabel": "Suurin tiedostokoko per tiedosto:",
+    "maxSize": "10 MB",
+    "note": "Yhteensä enintään 50 MB. Jopa 5 tiedostoa."
+  },
+  "submit": "Lähetä palaute",
+  "submitting": "Lähetetään...",
+  "success": "Kiitos palautteestasi!",
+  "error": "Jotain meni pieleen. Yritä uudelleen."
+}

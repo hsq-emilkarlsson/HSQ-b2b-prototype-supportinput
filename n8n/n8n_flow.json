@@ -1,0 +1,763 @@
+{
+  "name": "hsq-b2b-prototyp-feedbackcollection",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "feedback-agent/prototype",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "d0635ecd-07b2-4391-bb2c-f6aa1d7a87f2",
+      "name": "Webhook Chat",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1776,
+        272
+      ],
+      "webhookId": "feedback-chat"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body || {};\nconst sessionId = body.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;\nconst userMessage = body.message || '';\nconst conversationHistory = (body.conversationHistory || []).slice(-10);\nconst preferred = body.language;\n\nconst messageCount = conversationHistory.filter(m => m.role === 'user').length;\nconst isFirstMessage = messageCount === 0;\n\nfunction detectLanguage(text) {\n  const lower = (text || '').toLowerCase();\n  const swedishWords = ['är', 'och', 'för', 'att', 'inte', 'kan', 'har', 'det', 'med', 'från'];\n  const norwegianWords = ['og', 'ikke', 'det', 'som', 'skal', 'har', 'til', 'deg', 'for', 'med'];\n  const danishWords = ['er', 'og', 'det', 'som', 'skal', 'har', 'til', 'for', 'med', 'jeg'];\n  const finnishWords = ['ja', 'että', 'kun', 'mitä', 'kuka', 'missä', 'mihin', 'milloin', 'miksi', 'miten'];\n  const germanWords = ['und', 'der', 'die', 'das', 'ist', 'ein', 'eine', 'nicht', 'ich', 'das'];\n  const frenchWords = ['et', 'le', 'la', 'les', 'un', 'une', 'des', 'est', 'pas', 'qui'];\n  \n  const swScore = swedishWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  const noScore = norwegianWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  const daScore = danishWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  const fiScore = finnishWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  const deScore = germanWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  const frScore = frenchWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  \n  const scores = { sv: swScore, no: noScore, da: daScore, fi: fiScore, de: deScore, fr: frScore, en: 0 };\n  const maxScore = Math.max(...Object.values(scores));\n  if (maxScore <= 1) return 'en';\n  \n  for (const [lang, score] of Object.entries(scores)) {\n    if (score === maxScore) return lang;\n  }\n  return 'en';\n}\n\nconst detectedLanguage = preferred && preferred !== 'auto' ? preferred : detectLanguage(userMessage);\n\nreturn [{\n  json: {\n    sessionId,\n    chatInput: userMessage,\n    conversationHistory,\n    language: detectedLanguage,\n    messageCount,\n    isFirstMessage\n  }\n}];"
+      },
+      "id": "24da7cba-35cc-4c93-820d-4cb8bac7cf76",
+      "name": "Parse Chat",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1536,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are \"Portal Feedback Agent\" for Husqvarna's B2B customer portal.\n\n## 🎯 Mission\nHave a short, natural conversation to understand user feedback and turn it into actionable insight.\n\n## 🌍 Language\nAlways respond in the same language as the user (Swedish, Norwegian, English, etc.).\n\n## 💬 Style\n- Sound like a helpful human, not a form\n- Use 1–2 short sentences per reply\n- Show understanding, then ask clarifying questions when needed\n- Never over-ask\n\n## 👋 Opening\nIf first message, respond in the user's language:\n- SV: \"Hej! Vad skulle du vilja förbättra eller förändra i portalen?\"\n- NO: \"Hei! Hva vil du forbedre eller endre i portalen?\"\n- EN: \"Hi! What would you like to improve or change in the portal?\"\n- DA: \"Hej! Hvad gerne ændre på portalen?\"\n- FI: \"Terve! Mitä haluat muuttaa portaalissa?\"\n- DE: \"Hallo! Was möchten Sie im Portal ändern?\"\n- FR: \"Bonjour! Que aimeriez-vous changer dans le portail?\"\n\n## ✅ When to stop\nStop and summarize as soon as you understand: what (problem/idea), why (impact), and where (context).\n\n## 🧾 Final Output\n- Use natural-language replies during the conversation.\n- When the conversation is finished and you have all necessary information, your FINAL reply must be **only** ONE valid JSON object and nothing else (no explanation or text before/after):\n\n{\n  \"summary\": \"2–3 sentences of feedback\",\n  \"type\": \"bug|feature|praise|other\",\n  \"category\": \"order|search|performance|product_data|ux|other\",\n  \"impact\": \"how it affects user/business\",\n  \"frequency\": \"always|often|sometimes|once|unknown\",\n  \"context\": \"portal area (e.g., cart, search, login)\",\n  \"suggested_action\": \"concise recommendation\",\n  \"priority\": \"high|medium|low\",\n  \"metadata\": { \"language\": \"sv|en|no|da|fi|de|fr\", \"followUpRequired\": false }\n}"
+        }
+      },
+      "id": "06f4ccbb-6620-4ba1-8f21-e13db323d14f",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        -1280,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4.1",
+        "options": {
+          "frequencyPenalty": 0.3,
+          "maxTokens": 600,
+          "temperature": 0.5
+        }
+      },
+      "id": "4b8932e4-4a1b-4f4c-bc4b-9efb149dc0db",
+      "name": "Azure OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
+      "typeVersion": 1,
+      "position": [
+        -1440,
+        464
+      ],
+      "credentials": {
+        "azureOpenAiApi": {
+          "id": "N3PXzwsVJBCm6Pv9",
+          "name": "Azure Open AI account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "id": "65be459b-549a-4abb-986d-880e539ac2e1",
+      "name": "Memory Buffer",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        -1264,
+        496
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const reply = $input.item.json.output;\nconst conversationHistory = $('AI Agent').item.json.chatHistory || [];\nconst sessionId = $('Parse Chat').item.json.sessionId;\n\nfunction extractJsonLoose(text) {\n  if (typeof text !== 'string') return null;\n  const fenced = text.match(/```json\\s*({[\\s\\S]*?})\\s*```/i);\n  if (fenced && fenced[1]) return fenced[1];\n  const firstBrace = text.indexOf('{');\n  const lastBrace = text.lastIndexOf('}');\n  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {\n    return text.slice(firstBrace, lastBrace + 1);\n  }\n  return null;\n}\n\nif (typeof reply === 'string') {\n  const jsonStr = extractJsonLoose(reply);\n\n  if (jsonStr) {\n    try {\n      const summary = JSON.parse(jsonStr);\n      summary.metadata = summary.metadata || {};\n      const lang = summary.metadata.language || 'sv';\n      summary.metadata.sessionId = summary.metadata.sessionId || sessionId;\n\n      const thankYouMessages = {\n        en: 'Thank you for your feedback. We have received your input and will pass it on to our team.',\n        sv: 'Tack för din feedback. Vi har tagit emot dina synpunkter och vidarebefordrar dem till teamet.',\n        no: 'Takk for tilbakemeldingen. Vi har mottatt ditt innspill og videresender det til teamet.',\n        da: 'Tak for din feedback. Vi har modtaget dine input og videresender dem til teamet.',\n        fi: 'Kiitos palautteestasi. Olemme vastaanottaneet palautteesi ja välitämme sen tiimille.',\n        de: 'Vielen Dank für Ihr Feedback. Wir haben Ihren Input erhalten und leiten ihn an das Team weiter.',\n        fr: 'Merci pour votre retour. Nous avons reçu votre contribution et la transmettrons à l’équipe.'\n      };\n\n      const thankYou = thankYouMessages[lang] || thankYouMessages.en;\n      const summaryText = summary.summary || '';\n      const displayMessage = `${thankYou}\\n\\n${summaryText}`;\n\n      return [{\n        json: {\n          mode: 'summary',\n          displayMessage,\n          fullSummary: summary,\n          summaryDisplay: summaryText,\n          conversationHistory,\n          sessionId,\n          type: summary.type,\n          category: summary.category,\n          summaryText: summary.summary,\n          impact: summary.impact,\n          priority: summary.priority,\n          context: summary.context || '',\n          suggested_action: summary.suggested_action || '',\n          frequency: summary.frequency || '',\n          language: summary.metadata.language || '',\n          sessionIdForSheets: summary.metadata.sessionId || sessionId\n        }\n      }];\n    } catch (e) {\n      console.log('JSON parse failed in Format Chat Response:', e, jsonStr);\n    }\n  }\n\n  return [{\n    json: {\n      mode: 'chat',\n      displayMessage: reply,\n      reply,\n      conversationHistory,\n      sessionId\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    mode: 'chat',\n    displayMessage: 'Got your message!',\n    conversationHistory,\n    sessionId\n  }\n}];"
+      },
+      "id": "7322c393-ad76-4876-a056-573d167f348f",
+      "name": "Format Chat Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1040,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "condition_1",
+              "value1": "={{ $json.mode }}",
+              "operation": "equals",
+              "value2": "summary"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3699100f-d613-44c9-9556-2bc2e64c855d",
+      "name": "Is Summary?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -864,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g",
+          "mode": "list",
+          "cachedResultName": "hsq-b2b-prototyp-feedbackcollection",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "chat",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "SessionID": "={{ $json.sessionIdForSheets || $json.sessionId }}",
+            "Type": "={{ $json.type }}",
+            "Category": "={{ $json.category }}",
+            "Summary": "={{ $json.summaryText }}",
+            "Impact": "={{ $json.impact }}",
+            "Priority": "={{ $json.priority }}",
+            "Context": "={{ $json.context }}",
+            "Suggested_Action": "={{ $json.suggested_action }}",
+            "Frequency": "={{ $json.frequency }}",
+            "Language": "={{ $json.language }}",
+            "Conversation": "={{ JSON.stringify($('Parse Chat').item.json.conversationHistory || []) }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SessionID",
+              "displayName": "SessionID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Type",
+              "displayName": "Type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Impact",
+              "displayName": "Impact",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "displayName": "Priority",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Context",
+              "displayName": "Context",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Suggested_Action",
+              "displayName": "Suggested_Action",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Frequency",
+              "displayName": "Frequency",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Language",
+              "displayName": "Language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Conversation",
+              "displayName": "Conversation",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "fda132e6-ac0f-4bcc-a008-85fba8bd1b94",
+      "name": "Save Chat to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        -688,
+        208
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RlSZ1rbr0eTrRjYg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const formattedResponse = $('Format Chat Response').item.json;\n\nreturn [{\n  json: {\n    mode: formattedResponse.mode,\n    displayMessage: formattedResponse.displayMessage,\n    reply: formattedResponse.reply,\n    conversationHistory: formattedResponse.conversationHistory,\n    sessionId: formattedResponse.sessionId,\n    summaryDisplay: formattedResponse.summaryDisplay,\n    fullSummary: formattedResponse.fullSummary\n  }\n}];"
+      },
+      "id": "6a1cca03-82a4-4fee-8cad-d41c162a841e",
+      "name": "Recover Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -528,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "c3fd0e35-9f3c-429e-8e51-ae832d25d083",
+      "name": "Respond Chat",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -368,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "feedback-form/v1",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "445d4f79-9513-4137-b0e5-842f166a9207",
+      "name": "Webhook Form",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -1776,
+        688
+      ],
+      "webhookId": "feedback-form"
+    },
+    {
+      "parameters": {
+        "jsCode": "const incoming = $json.body || $json || {};\n\nconst sessionId = incoming.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;\nconst email = incoming.email || '';\nconst message = incoming.message || '';\nconst language = incoming.language || 'sv';\n\nconst rawFileName = incoming.fileName || '';\nconst safeFileName = rawFileName.replace(/[^a-zA-Z0-9._-]/g, '_');\nconst fileContentBase64 = incoming.fileContentBase64 || '';\n\n// Only consider hasFile=true if fileContentBase64 has actual content (not empty string)\nconst hasFile = !!(fileContentBase64 && fileContentBase64.length > 0);\nconst storedFileName = hasFile ? `${sessionId}_${Date.now()}_${safeFileName}` : '';\n\nconst item = {\n  json: {\n    sessionId,\n    email,\n    message,\n    language,\n    timestamp: new Date().toISOString(),\n    hasFile,\n    fileName: rawFileName,\n    storedFileName\n  }\n};\n\nif (hasFile) {\n  item.binary = {\n    fileData: {\n      data: fileContentBase64,\n      fileName: storedFileName || safeFileName || `upload_${sessionId}`,\n      mimeType: incoming.fileMimeType || 'application/octet-stream'\n    }\n  };\n}\n\nreturn [item];"
+      },
+      "id": "8aa9bc10-f535-491e-93f6-3812822d9506",
+      "name": "Parse Form",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1536,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "conditions": [
+            {
+              "id": "condition_1",
+              "value1": "={{ $json.hasFile }}",
+              "operation": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "11756f7b-e41c-440b-8dfd-13e8c6a1b38f",
+      "name": "If Has File?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        -1328,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://adb-2477674967236179.19.azuredatabricks.net/api/2.0/fs/files/Volumes/marketing_insight_prod/feedbackmanagement/raw_attachments/{{ $json.storedFileName ? encodeURIComponent($json.storedFileName) : 'missing_filename.bin' }}?overwrite=true",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBinaryData": true,
+        "binaryPropertyName": "fileData",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/octet-stream"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "id": "68d62eb4-61c8-4bbc-a044-abccdc10e8b9",
+      "name": "Upload to Databricks",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1072,
+        576
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "AZ3TKIJGT6pjnA6U",
+          "name": "Databricks PAT Prod"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const parseForm = $('Parse Form').item.json;\n\nconst sessionId = parseForm.sessionId || '';\nconst email = parseForm.email || '';\nconst message = parseForm.message || '';\nconst language = parseForm.language || 'sv';\nconst timestamp = parseForm.timestamp || '';\nconst hasFile = parseForm.hasFile || false;\nconst storedFileName = parseForm.storedFileName || '';\nconst originalFileName = parseForm.fileName || '';\n\n// For files: use storedFileName, for no-file: use original filename\nconst fileName = hasFile ? storedFileName : originalFileName;\n\nconst downloadUrl = hasFile && storedFileName\n  ? `https://adb-2477674967236179.19.azuredatabricks.net/api/2.0/fs/files/Volumes/marketing_insight_prod/feedbackmanagement/raw_attachments/${encodeURIComponent(storedFileName)}`\n  : '';\n\nreturn [{\n  json: {\n    status: 'ok',\n    sessionId,\n    email,\n    message,\n    language,\n    timestamp,\n    fileName: fileName,\n    downloadUrl: downloadUrl\n  }\n}];"
+      },
+      "id": "da7fff66-587e-4332-bad0-21198a2b5d11",
+      "name": "Prepare Form Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -928,
+        688
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g",
+          "mode": "list",
+          "cachedResultName": "hsq-b2b-prototyp-feedbackcollection",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2068857508,
+          "mode": "list",
+          "cachedResultName": "form",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g/edit#gid=2068857508"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $json.timestamp }}",
+            "SessionID": "={{ $json.sessionId }}",
+            "Email": "={{ $json.email }}",
+            "Message": "={{ $json.message }}",
+            "FileName": "={{ $json.fileName }}",
+            "FileLink": "={{ $json.downloadUrl }}",
+            "Language": "={{ $json.language }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SessionID",
+              "displayName": "SessionID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "displayName": "Message",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FileName",
+              "displayName": "FileName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FileLink",
+              "displayName": "FileLink",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Language",
+              "displayName": "Language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "6045420e-b422-4fe5-ba00-bc9bd2587908",
+      "name": "Save Form to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [
+        -720,
+        688
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "RlSZ1rbr0eTrRjYg",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        }
+      },
+      "id": "55d94a02-a37f-4744-8e5a-e06e735e3060",
+      "name": "Respond Form",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        688
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Chat": {
+      "main": [
+        [
+          {
+            "node": "Parse Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Chat": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Chat Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Chat Response": {
+      "main": [
+        [
+          {
+            "node": "Is Summary?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Summary?": {
+      "main": [
+        [
+          {
+            "node": "Save Chat to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Chat to Sheets": {
+      "main": [
+        [
+          {
+            "node": "Recover Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recover Response": {
+      "main": [
+        [
+          {
+            "node": "Respond Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Form": {
+      "main": [
+        [
+          {
+            "node": "Parse Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Form": {
+      "main": [
+        [
+          {
+            "node": "If Has File?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Has File?": {
+      "main": [
+        [
+          {
+            "node": "Upload to Databricks",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Form Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload to Databricks": {
+      "main": [
+        [
+          {
+            "node": "Prepare Form Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Form Response": {
+      "main": [
+        [
+          {
+            "node": "Save Form to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Form to Sheets": {
+      "main": [
+        [
+          {
+            "node": "Respond Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Azure OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory Buffer": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fixed-form-no-file",
+  "meta": {},
+  "id": "hsq-b2b-prototyp-feedbackcollection",
+  "tags": []
+}

@@ -1,0 +1,52 @@
+{
+  "title": "Retour d'information",
+  "description": "Nous apprécions vos commentaires ! Partagez vos réflexions, suggestions ou problèmes.",
+  "header": {
+    "title": "Centre de feedback",
+    "subtitle": "Aidez-nous à façonner l'avenir du Husqvarna Portal"
+  },
+  "ai": {
+    "title": "Assistant IA",
+    "powered": "Alimenté par n8n",
+    "description": "Un assistant pour vous aider à donner votre avis en posant des questions de suivi pour nous permettre d'agir et de catégoriser plus facilement"
+  },
+  "chat": {
+    "welcome": "Bonjour ! Que aimeriez-vous changer dans le portail ?",
+    "placeholder": "Posez-moi n'importe quelle question..."
+  },
+  "category": {
+    "label": "Catégorie",
+    "general": "Commentaires généraux",
+    "bug": "Bug/Problème",
+    "feature": "Demande de fonctionnalité",
+    "ui": "UI/Design",
+    "performance": "Performance"
+  },
+  "message": {
+    "label": "Votre retour",
+    "placeholder": "Décrivez vos commentaires en détail..."
+  },
+  "email": {
+    "label": "Email (facultatif)",
+    "placeholder": "votre@email.fr"
+  },
+  "attachment": {
+    "label": "Joindre un fichier (facultatif)",
+    "button": "Choisir un fichier",
+    "selected": "Fichier sélectionné:",
+    "remove": "Supprimer"
+  },
+  "attachmentLimits": {
+    "allowedTypesLabel": "Types de fichiers autorisés :",
+    "allowedTypes": "PNG, JPG, PDF",
+    "maxFilesLabel": "Nombre maximum de fichiers :",
+    "maxFiles": "5",
+    "maxSizeLabel": "Taille maximale par fichier :",
+    "maxSize": "10 MB",
+    "note": "Total max 50 MB. Jusqu'à 5 fichiers."
+  },
+  "submit": "Envoyer des commentaires",
+  "submitting": "Envoi en cours...",
+  "success": "Merci pour vos commentaires !",
+  "error": "Quelque chose s'est mal passé. Veuillez réessayer."
+}

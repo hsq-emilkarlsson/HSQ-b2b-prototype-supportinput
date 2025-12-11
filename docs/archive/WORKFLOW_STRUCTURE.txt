@@ -1,0 +1,209 @@
+╔════════════════════════════════════════════════════════════════════════════╗
+║                    N8N FEEDBACK WORKFLOW STRUCTURE                         ║
+║                         (n8n_flow.json v3)                                ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ CHAT WORKFLOW (Top Half)                                                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌──────────────────┐
+    │ Webhook Chat     │
+    │ POST /webhook/   │
+    │ feedback-agent/  │
+    │ prototype        │
+    └────────┬─────────┘
+             │
+             ▼
+    ┌──────────────────────┐
+    │ Parse Chat           │
+    │ Extract:             │
+    │ - sessionId          │
+    │ - message            │
+    │ - language           │
+    │ - conversationHistory│
+    └────────┬─────────────┘
+             │
+             ▼
+    ┌──────────────────────┐
+    │ AI Agent             │
+    │ (Azure OpenAI        │
+    │  gpt-4.1)            │
+    │ + Memory Buffer      │
+    └────────┬─────────────┘
+             │
+             ▼
+    ┌──────────────────────┐
+    │ Format Chat Response │
+    │ Detect:              │
+    │ - mode: chat|summary │
+    │ - displayMessage     │
+    └────────┬─────────────┘
+             │
+             ├─────────────────────────────┐
+             │                             │
+             ▼                             ▼
+    ┌──────────────┐            ┌──────────────────┐
+    │ Is Summary?  │            │ Respond Chat     │
+    │ (if mode ==  │            │ (for chat mode)  │
+    │  'summary')  │            └──────────────────┘
+    └──────┬───────┘                      ▲
+           │                              │
+           ▼                              │
+    ┌──────────────────┐                  │
+    │ Save Chat to     │                  │
+    │ Google Sheets    │                  │
+    │ (chat sheet)     │                  │
+    └────────┬─────────┘                  │
+             │                            │
+             └────────────┬───────────────┘
+                          │
+                          ▼
+                 ┌──────────────────┐
+                 │ Respond Chat     │
+                 │ Return JSON:     │
+                 │ {                │
+                 │   displayMessage │
+                 │   conversationHx │
+                 │ }                │
+                 └──────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│ FORM WORKFLOW (Bottom Half)                                                │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    ┌──────────────────┐
+    │ Webhook Form     │
+    │ POST /webhook/   │
+    │ feedback-form/v1 │
+    │ multipart/form   │
+    └────────┬─────────┘
+             │
+             ▼
+    ┌──────────────────────┐
+    │ Parse Form           │
+    │ Extract:             │
+    │ - email              │
+    │ - message            │
+    │ - files              │
+    │ - sessionId          │
+    └────────┬─────────────┘
+             │
+             ▼
+    ┌──────────────────────┐
+    │ If Has File?         │
+    │ (check files.length) │
+    └────────┬─────────────┘
+             │
+    ┌────────┴────────┐
+    │                 │
+    ▼                 ▼
+YES                  NO
+    │                 │
+    ▼                 ▼
+┌────────────────┐  ┌──────────────────┐
+│ Save Binary    │  │ Prepare Form     │
+│ File           │  │ Response         │
+│ (to /tmp/n8n_  │  │ (no file)        │
+│  uploads/)     │  └────────┬─────────┘
+└────────┬───────┘           │
+         │                   │
+         ▼                   │
+┌──────────────────────┐     │
+│ Prepare Form         │◄────┘
+│ Response             │
+│ (with file path)     │
+└────────┬─────────────┘
+         │
+         ▼
+┌──────────────────────┐
+│ Save Form to         │
+│ Google Sheets        │
+│ (form sheet)         │
+│ Columns:             │
+│ - Timestamp          │
+│ - SessionID          │
+│ - Email              │
+│ - Message            │
+│ - FileName           │
+│ - FileLink           │
+└────────┬─────────────┘
+         │
+         ▼
+┌──────────────────────┐
+│ Respond Form         │
+│ Return JSON:         │
+│ {                    │
+│   status: 'ok'       │
+│   sessionId          │
+│   fileName           │
+│   downloadUrl        │
+│ }                    │
+└──────────────────────┘
+
+╔════════════════════════════════════════════════════════════════════════════╗
+║ NODES SUMMARY                                                              ║
+╠════════════════════════════════════════════════════════════════════════════╣
+║ Total Nodes: 17                                                            ║
+║ Webhooks: 2                                                                ║
+║ Code Nodes: 4                                                              ║
+║ If Conditions: 2                                                           ║
+║ Google Sheets: 2                                                           ║
+║ AI Nodes: 3                                                                ║
+║ Response Nodes: 2                                                          ║
+║ File Nodes: 1                                                              ║
+╚════════════════════════════════════════════════════════════════════════════╝
+
+WEBHOOK ENDPOINTS
+═════════════════
+
+Form Webhook:
+  URL: https://husqvarna-prod.app.n8n.cloud/webhook/feedback-form/v1
+  Method: POST
+  Content-Type: multipart/form-data
+  Expected Body: { email, message, files[], sessionId, language }
+  Response: { status, sessionId, fileName, fileSaved, downloadUrl }
+
+Chat Webhook:
+  URL: https://husqvarna-prod.app.n8n.cloud/webhook/feedback-agent/prototype
+  Method: POST
+  Content-Type: application/json
+  Expected Body: { message, sessionId, conversationHistory, language }
+  Response: { mode, displayMessage, conversationHistory }
+
+FILE STORAGE
+════════════
+Path: /tmp/n8n_uploads/
+Pattern: {sessionId}_{originalFilename}
+Example: session_1700000000000_abc123_test.txt
+
+GOOGLE SHEETS
+═════════════
+Spreadsheet ID: 1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g
+
+Sheet 1 - "form":
+  Columns: Timestamp, SessionID, Email, Message, FileName, FileLink
+
+Sheet 2 - "chat":
+  Columns: Timestamp, SessionID, Type, Category, Summary, Priority
+
+CREDENTIALS
+═══════════
+Google Sheets OAuth2: RlSZ1rbr0eTrRjYg
+Azure OpenAI: N3PXzwsVJBCm6Pv9 (gpt-4.1)
+
+CONNECTION LOGIC
+════════════════
+
+Chat Path:
+  Webhook Chat → Parse Chat → AI Agent → Format Chat Response
+  ├─ If Summary → Save Chat to Sheets → Respond Chat
+  └─ If Chat → Direct to Respond Chat
+
+Form Path:
+  Webhook Form → Parse Form → If Has File?
+  ├─ YES: Save Binary File → Prepare Response → Save Form to Sheets → Respond
+  └─ NO: Prepare Response → Save Form to Sheets → Respond
+
+All paths properly connected with "main" type connections.
+No nodes left disconnected or orphaned.

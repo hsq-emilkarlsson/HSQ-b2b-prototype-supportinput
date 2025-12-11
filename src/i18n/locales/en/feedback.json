@@ -1,0 +1,52 @@
+{
+  "title": "Feedback",
+  "description": "We appreciate your feedback! Share your thoughts, suggestions, or issues.",
+  "header": {
+    "title": "Feedback Center",
+    "subtitle": "Help us shape the future of Husqvarna Portal"
+  },
+  "ai": {
+    "title": "AI Assistant",
+    "powered": "Powered by n8n",
+    "description": "An assistant to help you provide feedback by asking follow-up questions to make it easier for us to act and categorize"
+  },
+  "chat": {
+    "welcome": "Hi! What would you like to change in the Portal?",
+    "placeholder": "Ask me anything..."
+  },
+  "category": {
+    "label": "Category",
+    "general": "General Feedback",
+    "bug": "Bug/Issue",
+    "feature": "Feature Request",
+    "ui": "UI/Design",
+    "performance": "Performance"
+  },
+  "message": {
+    "label": "Your feedback",
+    "placeholder": "Describe your feedback in detail..."
+  },
+  "email": {
+    "label": "Email (optional)",
+    "placeholder": "your@email.com"
+  },
+  "attachment": {
+    "label": "Attach file (optional)",
+    "button": "Choose file",
+    "selected": "Selected file:",
+    "remove": "Remove"
+  },
+  "attachmentLimits": {
+    "allowedTypesLabel": "Allowed file types:",
+    "allowedTypes": "PNG, JPG, PDF",
+    "maxFilesLabel": "Max number of files:",
+    "maxFiles": "5",
+    "maxSizeLabel": "Max file size per file:",
+    "maxSize": "10 MB",
+    "note": "Total max 50 MB. Up to 5 files."
+  },
+  "submit": "Submit feedback",
+  "submitting": "Submitting...",
+  "success": "Thank you for your feedback!",
+  "error": "Something went wrong. Please try again."
+}

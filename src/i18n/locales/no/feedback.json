@@ -1,0 +1,52 @@
+{
+  "title": "Tilbakemelding",
+  "description": "Vi setter pris på din tilbakemelding! Del dine tanker, forslag eller problemer.",
+  "header": {
+    "title": "Tilbakemeldingssenter",
+    "subtitle": "Hjelp oss forme fremtiden til Husqvarna Portal"
+  },
+  "ai": {
+    "title": "AI-assistent",
+    "powered": "Drevet av n8n",
+    "description": "En assistent som hjelper deg med å gi tilbakemelding ved å stille oppfølgingsspørsmål for å gjøre det enklere for oss å handle og kategorisere"
+  },
+  "chat": {
+    "welcome": "Hei! Hva vil du endre i Portalen?",
+    "placeholder": "Spør meg om hva som helst..."
+  },
+  "category": {
+    "label": "Kategori",
+    "general": "Generell tilbakemelding",
+    "bug": "Feil/Problem",
+    "feature": "Funksjonsforespørsel",
+    "ui": "UI/Design",
+    "performance": "Ytelse"
+  },
+  "message": {
+    "label": "Din tilbakemelding",
+    "placeholder": "Beskriv din tilbakemelding i detalj..."
+  },
+  "email": {
+    "label": "E-post (valgfritt)",
+    "placeholder": "din@epost.no"
+  },
+  "attachment": {
+    "label": "Legg ved fil (valgfritt)",
+    "button": "Velg fil",
+    "selected": "Valgt fil:",
+    "remove": "Fjern"
+  },
+  "attachmentLimits": {
+    "allowedTypesLabel": "Tillatte filtyper:",
+    "allowedTypes": "PNG, JPG, PDF",
+    "maxFilesLabel": "Maks antall filer:",
+    "maxFiles": "5",
+    "maxSizeLabel": "Maks filstørrelse per fil:",
+    "maxSize": "10 MB",
+    "note": "Totalt maks 50 MB. Inntil 5 filer."
+  },
+  "submit": "Send tilbakemelding",
+  "submitting": "Sender...",
+  "success": "Takk for din tilbakemelding!",
+  "error": "Noe gikk galt. Prøv igjen."
+}
