@@ -1,22 +1,22 @@
 {
-  "name": "hsq-b2b-prototyp-feedbackcollection",
+  "name": "hsq-b2b-prototyp-support",
   "nodes": [
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "feedback-agent/prototype",
+        "path": "supportchat/prototype",
         "responseMode": "responseNode",
         "options": {
           "allowedOrigins": "*"
         }
       },
-      "id": "d0635ecd-07b2-4391-bb2c-f6aa1d7a87f2",
+      "id": "24e28e30-24f1-4cb2-86ea-34e7463fadcb",
       "name": "Webhook Chat",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -1776,
-        272
+        -1488,
+        -304
       ],
       "webhookId": "feedback-chat"
     },
@@ -24,29 +24,29 @@
       "parameters": {
         "jsCode": "const body = $json.body || {};\nconst sessionId = body.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;\nconst userMessage = body.message || '';\nconst conversationHistory = (body.conversationHistory || []).slice(-10);\nconst preferred = body.language;\n\nconst messageCount = conversationHistory.filter(m => m.role === 'user').length;\nconst isFirstMessage = messageCount === 0;\n\nfunction detectLanguage(text) {\n  const lower = (text || '').toLowerCase();\n  const swedishWords = ['är', 'och', 'för', 'att', 'inte', 'kan', 'har', 'det', 'med', 'från'];\n  const norwegianWords = ['og', 'ikke', 'det', 'som', 'skal', 'har', 'til', 'deg', 'for', 'med'];\n  const danishWords = ['er', 'og', 'det', 'som', 'skal', 'har', 'til', 'for', 'med', 'jeg'];\n  const finnishWords = ['ja', 'että', 'kun', 'mitä', 'kuka', 'missä', 'mihin', 'milloin', 'miksi', 'miten'];\n  const germanWords = ['und', 'der', 'die', 'das', 'ist', 'ein', 'eine', 'nicht', 'ich', 'das'];\n  const frenchWords = ['et', 'le', 'la', 'les', 'un', 'une', 'des', 'est', 'pas', 'qui'];\n  \n  const swScore = swedishWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  const noScore = norwegianWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  const daScore = danishWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  const fiScore = finnishWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  const deScore = germanWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  const frScore = frenchWords.filter(w => lower.includes(' ' + w + ' ')).length;\n  \n  const scores = { sv: swScore, no: noScore, da: daScore, fi: fiScore, de: deScore, fr: frScore, en: 0 };\n  const maxScore = Math.max(...Object.values(scores));\n  if (maxScore <= 1) return 'en';\n  \n  for (const [lang, score] of Object.entries(scores)) {\n    if (score === maxScore) return lang;\n  }\n  return 'en';\n}\n\nconst detectedLanguage = preferred && preferred !== 'auto' ? preferred : detectLanguage(userMessage);\n\nreturn [{\n  json: {\n    sessionId,\n    chatInput: userMessage,\n    conversationHistory,\n    language: detectedLanguage,\n    messageCount,\n    isFirstMessage\n  }\n}];"
       },
-      "id": "24da7cba-35cc-4c93-820d-4cb8bac7cf76",
+      "id": "d1657fe5-b324-4a3a-9c3f-47ee0fb26ad5",
       "name": "Parse Chat",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1536,
-        272
+        -1248,
+        -304
       ]
     },
     {
       "parameters": {
         "hasOutputParser": true,
         "options": {
-          "systemMessage": "=You are \"Portal Feedback Agent\" for Husqvarna's B2B customer portal.\n\n## 🎯 Mission\nHave a short, natural conversation to understand user feedback and turn it into actionable insight.\n\n## 🌍 Language\nAlways respond in the same language as the user (Swedish, Norwegian, English, etc.).\n\n## 💬 Style\n- Sound like a helpful human, not a form\n- Use 1–2 short sentences per reply\n- Show understanding, then ask clarifying questions when needed\n- Never over-ask\n\n## 👋 Opening\nIf first message, respond in the user's language:\n- SV: \"Hej! Vad skulle du vilja förbättra eller förändra i portalen?\"\n- NO: \"Hei! Hva vil du forbedre eller endre i portalen?\"\n- EN: \"Hi! What would you like to improve or change in the portal?\"\n- DA: \"Hej! Hvad gerne ændre på portalen?\"\n- FI: \"Terve! Mitä haluat muuttaa portaalissa?\"\n- DE: \"Hallo! Was möchten Sie im Portal ändern?\"\n- FR: \"Bonjour! Que aimeriez-vous changer dans le portail?\"\n\n## ✅ When to stop\nStop and summarize as soon as you understand: what (problem/idea), why (impact), and where (context).\n\n## 🧾 Final Output\n- Use natural-language replies during the conversation.\n- When the conversation is finished and you have all necessary information, your FINAL reply must be **only** ONE valid JSON object and nothing else (no explanation or text before/after):\n\n{\n  \"summary\": \"2–3 sentences of feedback\",\n  \"type\": \"bug|feature|praise|other\",\n  \"category\": \"order|search|performance|product_data|ux|other\",\n  \"impact\": \"how it affects user/business\",\n  \"frequency\": \"always|often|sometimes|once|unknown\",\n  \"context\": \"portal area (e.g., cart, search, login)\",\n  \"suggested_action\": \"concise recommendation\",\n  \"priority\": \"high|medium|low\",\n  \"metadata\": { \"language\": \"sv|en|no|da|fi|de|fr\", \"followUpRequired\": false }\n}"
+          "systemMessage": "=You are \"Portal Support Agent\" for Husqvarna's B2B customer portal.\n\n## 🎯 Mission\nHold a short, natural conversation to capture the essentials for a support ticket. Collect: what is the issue/request, where it happens, steps to reproduce (if any), expected vs actual, impact/urgency, and any relevant environment info.\n\n## 🌍 Language\nAlways respond in the user's language (SV, NO, EN, DA, FI, DE, FR).\n\n## 💬 Style\n- Sound like a helpful human, not a form\n- 1–2 short sentences per reply\n- Show understanding, ask only necessary clarifying questions\n- Stop asking once the ticket details are clear\n\n## 👋 Opening\nIf first message, respond in the user's language:\n- SV: \"Hej! Vad behöver du hjälp med? Beskriv kort problemet eller önskan.\"\n- NO: \"Hei! Hva trenger du hjelp med? Beskriv kort problemet eller ønsket.\"\n- EN: \"Hi! What do you need help with? Briefly describe the issue or request.\"\n- DA: \"Hej! Hvad har du brug for hjælp til? Beskriv kort problemet eller ønsket.\"\n- FI: \"Hei! Mihin tarvitset apua? Kuvaile lyhyesti ongelma tai pyyntö.\"\n- DE: \"Hallo! Wobei brauchen Sie Hilfe? Beschreiben Sie kurz das Problem oder Anliegen.\"\n- FR: \"Bonjour ! De quoi avez-vous besoin d'aide ? Décrivez brièvement le problème ou la demande.\"\n\n## ✅ When to stop\nStop as soon as you have: issue/request, location/context, steps to reproduce (if relevant), expected vs actual, impact/urgency, and any attachments/info the user offers.\n\n## 🧾 Final Output\n- Use natural-language replies during the conversation.\n- When the conversation is finished and you have all necessary information, your FINAL reply must be **only** ONE valid JSON object and nothing else (no explanation or text before/after):\n\n{\n  \"summary\": \"2–3 sentences describing the issue/request\",\n  \"type\": \"incident|bug|request|other\",\n  \"category\": \"order|search|performance|product_data|ux|other\",\n  \"impact\": \"business/user impact\",\n  \"frequency\": \"always|often|sometimes|once|unknown\",\n  \"context\": \"where it happens (e.g., cart, search, login)\",\n  \"suggested_action\": \"concise recommendation or next step\",\n  \"priority\": \"high|medium|low\",\n  \"metadata\": { \"language\": \"sv|en|no|da|fi|de|fr\", \"followUpRequired\": false }\n}"
         }
       },
-      "id": "06f4ccbb-6620-4ba1-8f21-e13db323d14f",
+      "id": "413a4e7f-610d-45f1-853d-454058c05547",
       "name": "AI Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 1.7,
       "position": [
-        -1280,
-        272
+        -992,
+        -304
       ]
     },
     {
@@ -58,13 +58,13 @@
           "temperature": 0.5
         }
       },
-      "id": "4b8932e4-4a1b-4f4c-bc4b-9efb149dc0db",
+      "id": "f5986989-5a42-4fb4-a65e-b0392233fcd1",
       "name": "Azure OpenAI Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatAzureOpenAi",
       "typeVersion": 1,
       "position": [
-        -1440,
-        464
+        -1152,
+        -112
       ],
       "credentials": {
         "azureOpenAiApi": {
@@ -79,26 +79,26 @@
         "sessionKey": "={{ $json.sessionId }}",
         "contextWindowLength": 10
       },
-      "id": "65be459b-549a-4abb-986d-880e539ac2e1",
+      "id": "7e57cf1f-dd78-4d0d-9eec-b076e82b16a3",
       "name": "Memory Buffer",
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "typeVersion": 1.2,
       "position": [
-        -1264,
-        496
+        -976,
+        -80
       ]
     },
     {
       "parameters": {
-        "jsCode": "const reply = $input.item.json.output;\nconst conversationHistory = $('AI Agent').item.json.chatHistory || [];\nconst sessionId = $('Parse Chat').item.json.sessionId;\n\nfunction extractJsonLoose(text) {\n  if (typeof text !== 'string') return null;\n  const fenced = text.match(/```json\\s*({[\\s\\S]*?})\\s*```/i);\n  if (fenced && fenced[1]) return fenced[1];\n  const firstBrace = text.indexOf('{');\n  const lastBrace = text.lastIndexOf('}');\n  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {\n    return text.slice(firstBrace, lastBrace + 1);\n  }\n  return null;\n}\n\nif (typeof reply === 'string') {\n  const jsonStr = extractJsonLoose(reply);\n\n  if (jsonStr) {\n    try {\n      const summary = JSON.parse(jsonStr);\n      summary.metadata = summary.metadata || {};\n      const lang = summary.metadata.language || 'sv';\n      summary.metadata.sessionId = summary.metadata.sessionId || sessionId;\n\n      const thankYouMessages = {\n        en: 'Thank you for your feedback. We have received your input and will pass it on to our team.',\n        sv: 'Tack för din feedback. Vi har tagit emot dina synpunkter och vidarebefordrar dem till teamet.',\n        no: 'Takk for tilbakemeldingen. Vi har mottatt ditt innspill og videresender det til teamet.',\n        da: 'Tak for din feedback. Vi har modtaget dine input og videresender dem til teamet.',\n        fi: 'Kiitos palautteestasi. Olemme vastaanottaneet palautteesi ja välitämme sen tiimille.',\n        de: 'Vielen Dank für Ihr Feedback. Wir haben Ihren Input erhalten und leiten ihn an das Team weiter.',\n        fr: 'Merci pour votre retour. Nous avons reçu votre contribution et la transmettrons à l’équipe.'\n      };\n\n      const thankYou = thankYouMessages[lang] || thankYouMessages.en;\n      const summaryText = summary.summary || '';\n      const displayMessage = `${thankYou}\\n\\n${summaryText}`;\n\n      return [{\n        json: {\n          mode: 'summary',\n          displayMessage,\n          fullSummary: summary,\n          summaryDisplay: summaryText,\n          conversationHistory,\n          sessionId,\n          type: summary.type,\n          category: summary.category,\n          summaryText: summary.summary,\n          impact: summary.impact,\n          priority: summary.priority,\n          context: summary.context || '',\n          suggested_action: summary.suggested_action || '',\n          frequency: summary.frequency || '',\n          language: summary.metadata.language || '',\n          sessionIdForSheets: summary.metadata.sessionId || sessionId\n        }\n      }];\n    } catch (e) {\n      console.log('JSON parse failed in Format Chat Response:', e, jsonStr);\n    }\n  }\n\n  return [{\n    json: {\n      mode: 'chat',\n      displayMessage: reply,\n      reply,\n      conversationHistory,\n      sessionId\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    mode: 'chat',\n    displayMessage: 'Got your message!',\n    conversationHistory,\n    sessionId\n  }\n}];"
+        "jsCode": "const reply = $input.item.json.output;\nconst conversationHistory = $('AI Agent').item.json.chatHistory || [];\nconst sessionId = $('Parse Chat').item.json.sessionId;\n\nfunction extractJsonLoose(text) {\n  if (typeof text !== 'string') return null;\n  const fenced = text.match(/```json\\s*({[\\s\\S]*?})\\s*```/i);\n  if (fenced && fenced[1]) return fenced[1];\n  const firstBrace = text.indexOf('{');\n  const lastBrace = text.lastIndexOf('}');\n  if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {\n    return text.slice(firstBrace, lastBrace + 1);\n  }\n  return null;\n}\n\nif (typeof reply === 'string') {\n  const jsonStr = extractJsonLoose(reply);\n\n  if (jsonStr) {\n    try {\n      const summary = JSON.parse(jsonStr);\n      summary.metadata = summary.metadata || {};\n      const lang = summary.metadata.language || 'sv';\n      summary.metadata.sessionId = summary.metadata.sessionId || sessionId;\n\n      const customerNumber = summary.metadata.customerNumber || '';\n      const contactEmail = summary.metadata.contactEmail || '';\n\n      if (!customerNumber || !contactEmail) {\n        const missing = [];\n        if (!customerNumber) missing.push('kundnummer');\n        if (!contactEmail) missing.push('kontaktmail');\n\n        const askMessages = {\n          en: `Could you share your ${missing.join(' and ')} so we can log the ticket?`,\n          sv: `Kan du dela ditt ${missing.join(' och ')} så vi kan registrera ärendet?`,\n          no: `Kan du dele ditt ${missing.join(' og ')} så vi kan registrere saken?`,\n          da: `Kan du dele dit ${missing.join(' og ')} så vi kan registrere sagen?`,\n          fi: `Voitko antaa ${missing.join(' ja ')} jotta voimme kirjata tiketin?`,\n          de: `Können Sie bitte Ihr ${missing.join(' und ')} angeben, damit wir das Ticket erfassen können?`,\n          fr: `Pouvez-vous partager votre ${missing.join(' et ')} pour que nous enregistrions le ticket ?`\n        };\n\n        const ask = askMessages[lang] || askMessages.en;\n\n        return [{\n          json: {\n            mode: 'chat',\n            displayMessage: ask,\n            conversationHistory,\n            sessionId\n          }\n        }];\n      }\n\n      const thankYouMessages = {\n        en: 'Thank you. We have captured your support request and will pass it to the team.',\n        sv: 'Tack. Vi har registrerat ditt supportärende och skickar det vidare till teamet.',\n        no: 'Takk. Vi har registrert supporthenvendelsen din og sender den videre til teamet.',\n        da: 'Tak. Vi har registreret din supportanmodning og sender den videre til teamet.',\n        fi: 'Kiitos. Olemme kirjanneet tukipyyntösi ja välitämme sen tiimille.',\n        de: 'Danke. Wir haben Ihre Supportanfrage erfasst und leiten sie an das Team weiter.',\n        fr: 'Merci. Nous avons enregistré votre demande de support et la transmettons à l’équipe.'\n      };\n\n      const thankYou = thankYouMessages[lang] || thankYouMessages.en;\n      const summaryText = summary.summary || '';\n      const displayMessage = `${thankYou}\\n\\n${summaryText}`;\n\n      return [{\n        json: {\n          mode: 'summary',\n          displayMessage,\n          fullSummary: summary,\n          summaryDisplay: summaryText,\n          conversationHistory,\n          sessionId,\n          type: summary.type,\n          category: summary.category,\n          summaryText: summary.summary,\n          impact: summary.impact,\n          priority: summary.priority,\n          context: summary.context || '',\n          suggested_action: summary.suggested_action || '',\n          frequency: summary.frequency || '',\n          language: summary.metadata.language || '',\n          sessionIdForSheets: summary.metadata.sessionId || sessionId,\n          timestamp: new Date().toISOString(),\n          customerNumber: summary.metadata.customerNumber || '',\n          contactEmail: summary.metadata.contactEmail || ''\n        }\n      }];\n    } catch (e) {\n      console.log('JSON parse failed in Format Chat Response:', e, jsonStr);\n    }\n  }\n\n  return [{\n    json: {\n      mode: 'chat',\n      displayMessage: reply,\n      reply,\n      conversationHistory,\n      sessionId\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    mode: 'chat',\n    displayMessage: 'Got your message!',\n    conversationHistory,\n    sessionId\n  }\n}];"
       },
-      "id": "7322c393-ad76-4876-a056-573d167f348f",
+      "id": "6c5768b9-25e7-4575-b2dd-accb46c0f9c4",
       "name": "Format Chat Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1040,
-        272
+        -752,
+        -304
       ]
     },
     {
@@ -113,15 +113,18 @@
             }
           ]
         },
+        "options": {
+          "systemMessage": "=You are \"Portal Support Agent\" for Husqvarna's B2B customer portal.\n\n## 🎯 Mission\nHold a short, natural conversation to capture the essentials for a support ticket. Collect: issue/request, where it happens, steps to reproduce (if any), expected vs actual, impact/urgency, any environment info, **customer number**, and **contact email**. If either customer number or contact email is missing, ask for it explicitly before finishing.\n\n## 🌍 Language\nAlways respond in the user's language (SV, NO, EN, DA, FI, DE, FR).\n\n## 💬 Style\n- Sound like a helpful human, not a form\n- 1–2 short sentences per reply\n- Show understanding, ask only necessary clarifying questions\n- Stop asking once the ticket details are clear and you have customer number + contact email\n\n## 👋 Opening\nIf first message, respond in the user's language:\n- SV: \"Hej! Vad behöver du hjälp med? Beskriv kort problemet eller önskan.\"\n- NO: \"Hei! Hva trenger du hjelp med? Beskriv kort problemet eller ønsket.\"\n- EN: \"Hi! What do you need help with? Briefly describe the issue or request.\"\n- DA: \"Hej! Hvad har du brug for hjælp til? Beskriv kort problemet eller ønsket.\"\n- FI: \"Hei! Mihin tarvitset apua? Kuvaile lyhyesti ongelma tai pyyntö.\"\n- DE: \"Hallo! Wobei brauchen Sie Hilfe? Beschreiben Sie kurz das Problem oder Anliegen.\"\n- FR: \"Bonjour ! De quoi avez-vous besoin d'aide ? Décrivez brièvement le problème ou la demande.\"\n\n## ✅ When to stop\nStop only when you have: issue/request, location/context, steps to reproduce (if relevant), expected vs actual, impact/urgency, any attachments/info the user offers, **customer number**, and **contact email**.\n\n## 🧾 Final Output\n- Use natural-language replies during the conversation.\n- When the conversation is finished and you have all necessary information, your FINAL reply must be **only** ONE valid JSON object and nothing else (no explanation or text before/after):\n\n{\n  \"summary\": \"2–3 sentences describing the issue/request\",\n  \"type\": \"incident|bug|request|other\",\n  \"category\": \"order|search|performance|product_data|ux|other\",\n  \"impact\": \"business/user impact\",\n  \"frequency\": \"always|often|sometimes|once|unknown\",\n  \"context\": \"where it happens (e.g., cart, search, login)\",\n  \"suggested_action\": \"concise recommendation or next step\",\n  \"priority\": \"high|medium|low\",\n  \"metadata\": { \"language\": \"sv|en|no|da|fi|de|fr\", \"followUpRequired\": false, \"customerNumber\": \"<string>\", \"contactEmail\": \"<string>\" }\n}"
+        },
         "options": {}
       },
-      "id": "3699100f-d613-44c9-9556-2bc2e64c855d",
+      "id": "5014e529-33c2-44d4-b8e9-9787742eb9d9",
       "name": "Is Summary?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -864,
-        272
+        -576,
+        -304
       ]
     },
     {
@@ -129,23 +132,23 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g",
+          "value": "1uiNECyY0HcF2mWlltqyAiFJJFFXgKsUM9e_GAGFF-Tc",
           "mode": "list",
-          "cachedResultName": "hsq-b2b-prototyp-feedbackcollection",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g/edit?usp=drivesdk"
+          "cachedResultName": "hsq-b2b-support",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uiNECyY0HcF2mWlltqyAiFJJFFXgKsUM9e_GAGFF-Tc/edit"
         },
         "sheetName": {
           "__rl": true,
-          "value": "gid=0",
+          "value": 2068857508,
           "mode": "list",
-          "cachedResultName": "chat",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g/edit#gid=0"
+          "cachedResultName": "support",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uiNECyY0HcF2mWlltqyAiFJJFFXgKsUM9e_GAGFF-Tc/edit#gid=2068857508"
         },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
-            "Timestamp": "={{ new Date().toISOString() }}",
-            "SessionID": "={{ $json.sessionIdForSheets || $json.sessionId }}",
+            "Timestamp": "={{ $json.timestamp || new Date().toISOString() }}",
+            "SessionID": "={{ $json.sessionId }}",
             "Type": "={{ $json.type }}",
             "Category": "={{ $json.category }}",
             "Summary": "={{ $json.summaryText }}",
@@ -155,7 +158,9 @@
             "Suggested_Action": "={{ $json.suggested_action }}",
             "Frequency": "={{ $json.frequency }}",
             "Language": "={{ $json.language }}",
-            "Conversation": "={{ JSON.stringify($('Parse Chat').item.json.conversationHistory || []) }}"
+            "Conversation": "={{ JSON.stringify($json.conversationHistory || []) }}",
+            "CustomerNumber": "={{ $json.customerNumber }}",
+            "ContactEmail": "={{ $json.contactEmail }}"
           },
           "matchingColumns": [],
           "schema": [
@@ -266,6 +271,24 @@
               "display": true,
               "type": "string",
               "canBeUsedToMatch": true
+            },
+            {
+              "id": "CustomerNumber",
+              "displayName": "CustomerNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ContactEmail",
+              "displayName": "ContactEmail",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
             }
           ],
           "attemptToConvertTypes": false,
@@ -273,13 +296,13 @@
         },
         "options": {}
       },
-      "id": "fda132e6-ac0f-4bcc-a008-85fba8bd1b94",
+      "id": "37af753a-1283-4333-8dd9-a84a13b5d5f6",
       "name": "Save Chat to Sheets",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.4,
       "position": [
-        -688,
-        208
+        -400,
+        -368
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -290,15 +313,15 @@
     },
     {
       "parameters": {
-        "jsCode": "const formattedResponse = $('Format Chat Response').item.json;\n\nreturn [{\n  json: {\n    mode: formattedResponse.mode,\n    displayMessage: formattedResponse.displayMessage,\n    reply: formattedResponse.reply,\n    conversationHistory: formattedResponse.conversationHistory,\n    sessionId: formattedResponse.sessionId,\n    summaryDisplay: formattedResponse.summaryDisplay,\n    fullSummary: formattedResponse.fullSummary\n  }\n}];"
+        "jsCode": "const formattedResponse = $('Format Chat Response').item.json;\n\nreturn [{\n  json: {\n    mode: formattedResponse.mode,\n    displayMessage: formattedResponse.displayMessage,\n    reply: formattedResponse.reply,\n    conversationHistory: formattedResponse.conversationHistory,\n    sessionId: formattedResponse.sessionId,\n    summaryDisplay: formattedResponse.summaryDisplay,\n    fullSummary: formattedResponse.fullSummary,\n    timestamp: formattedResponse.timestamp || new Date().toISOString(),\n    type: formattedResponse.type || '',\n    category: formattedResponse.category || '',\n    summaryText: formattedResponse.summaryText || '',\n    impact: formattedResponse.impact || '',\n    priority: formattedResponse.priority || '',\n    context: formattedResponse.context || '',\n    suggested_action: formattedResponse.suggested_action || '',\n    frequency: formattedResponse.frequency || '',\n    language: formattedResponse.language || '',\n    customerNumber: formattedResponse.customerNumber || '',\n    contactEmail: formattedResponse.contactEmail || ''\n  }\n}];"
       },
-      "id": "6a1cca03-82a4-4fee-8cad-d41c162a841e",
+      "id": "6b9682f7-f054-4865-adff-6ae2d8c4d705",
       "name": "Recover Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -528,
-        272
+        -240,
+        -304
       ]
     },
     {
@@ -319,45 +342,45 @@
           }
         }
       },
-      "id": "c3fd0e35-9f3c-429e-8e51-ae832d25d083",
+      "id": "9de9288d-3faf-4eee-9dba-4e1b6e3c95cc",
       "name": "Respond Chat",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        -368,
-        272
+        -80,
+        -304
       ]
     },
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "feedback-form/v1",
+        "path": "support-form/v1",
         "responseMode": "responseNode",
         "options": {
           "allowedOrigins": "*"
         }
       },
-      "id": "445d4f79-9513-4137-b0e5-842f166a9207",
+      "id": "414d0ec3-c75f-47e3-91c7-f92adafec0c6",
       "name": "Webhook Form",
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2,
       "position": [
-        -1776,
-        688
+        -1488,
+        112
       ],
       "webhookId": "feedback-form"
     },
     {
       "parameters": {
-        "jsCode": "const incoming = $json.body || $json || {};\n\nconst sessionId = incoming.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;\nconst email = incoming.email || '';\nconst message = incoming.message || '';\nconst language = incoming.language || 'sv';\n\nconst rawFileName = incoming.fileName || '';\nconst safeFileName = rawFileName.replace(/[^a-zA-Z0-9._-]/g, '_');\nconst fileContentBase64 = incoming.fileContentBase64 || '';\n\n// Only consider hasFile=true if fileContentBase64 has actual content (not empty string)\nconst hasFile = !!(fileContentBase64 && fileContentBase64.length > 0);\nconst storedFileName = hasFile ? `${sessionId}_${Date.now()}_${safeFileName}` : '';\n\nconst item = {\n  json: {\n    sessionId,\n    email,\n    message,\n    language,\n    timestamp: new Date().toISOString(),\n    hasFile,\n    fileName: rawFileName,\n    storedFileName\n  }\n};\n\nif (hasFile) {\n  item.binary = {\n    fileData: {\n      data: fileContentBase64,\n      fileName: storedFileName || safeFileName || `upload_${sessionId}`,\n      mimeType: incoming.fileMimeType || 'application/octet-stream'\n    }\n  };\n}\n\nreturn [item];"
+        "jsCode": "const incoming = $json.body || $json || {};\n\nconst sessionId = incoming.sessionId || `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;\nconst email = incoming.email || '';\nconst message = incoming.message || '';\nconst language = incoming.language || 'sv';\nconst supportFlow = incoming.supportFlow || 'customer';\nconst customerNumber = incoming.customerNumber || '';\nconst contactPerson = incoming.contactPerson || '';\nconst pncNumber = incoming.pncNumber || '';\nconst serialNumber = incoming.serialNumber || '';\nconst caseType = incoming.caseType || '';\n\n// Normalize incoming files array and legacy single file fields\nconst incomingFiles = Array.isArray(incoming.files) ? incoming.files : [];\nif (incoming.fileContentBase64) {\n  incomingFiles.unshift({\n    fileName: incoming.fileName || '',\n    fileContentBase64: incoming.fileContentBase64,\n    fileMimeType: incoming.fileMimeType || 'application/octet-stream'\n  });\n}\n\n// Prepare files with stored names\nconst files = incomingFiles\n  .filter(f => f && f.fileContentBase64)\n  .map((file, index) => {\n    const rawFileName = file.fileName || `file_${index + 1}`;\n    const safeFileName = rawFileName.replace(/[^a-zA-Z0-9._-]/g, '_');\n    const storedFileName = `${sessionId}_${Date.now()}_${index + 1}_${safeFileName}`;\n    return {\n      fileName: rawFileName,\n      storedFileName,\n      fileContentBase64: file.fileContentBase64,\n      fileMimeType: file.fileMimeType || 'application/octet-stream'\n    };\n  });\n\nconst hasFile = files.length > 0;\n\nif (hasFile) {\n  console.log('Files received:', files.map(f => ({\n    fileName: f.fileName,\n    base64Length: f.fileContentBase64.length,\n    first50Chars: f.fileContentBase64.substring(0, 50)\n  })));\n}\n\nreturn [{\n  json: {\n    sessionId,\n    email,\n    message,\n    language,\n    supportFlow,\n    customerNumber,\n    contactPerson,\n    pncNumber,\n    serialNumber,\n    caseType,\n    timestamp: new Date().toISOString(),\n    hasFile,\n    files\n  }\n}];"
       },
-      "id": "8aa9bc10-f535-491e-93f6-3812822d9506",
+      "id": "9773bb66-e4eb-492e-8c4e-c4fc90ca4b4e",
       "name": "Parse Form",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1536,
-        688
+        -1248,
+        112
       ]
     },
     {
@@ -373,23 +396,34 @@
         },
         "options": {}
       },
-      "id": "11756f7b-e41c-440b-8dfd-13e8c6a1b38f",
+      "id": "f48da8ae-2ada-49ee-9b12-d1d9961abb26",
       "name": "If Has File?",
       "type": "n8n-nodes-base.if",
       "typeVersion": 2,
       "position": [
-        -1328,
-        688
+        -1040,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const files = Array.isArray($input.item.json.files) ? $input.item.json.files : [];\n\nif (!files.length) {\n  throw new Error('No files available for conversion');\n}\n\n// For now, upload the first file while retaining metadata for all\nconst primary = files[0];\nconst base64Data = primary.fileContentBase64;\nconst fileName = primary.storedFileName || 'upload.bin';\nconst mimeType = primary.fileMimeType || 'application/octet-stream';\n\nif (!base64Data) {\n  throw new Error('No base64 data found on primary file');\n}\n\nif (files.length > 1) {\n  console.log('Multiple files received; only first will be uploaded. Count:', files.length);\n}\n\nconsole.log('Converting base64 to binary:', {\n  base64Length: base64Data.length,\n  fileName,\n  mimeType\n});\n\nconst binaryBuffer = Buffer.from(base64Data, 'base64');\n\nconsole.log('Buffer created:', {\n  bufferLength: binaryBuffer.length,\n  first10Bytes: Array.from(binaryBuffer.slice(0, 10))\n});\n\nreturn {\n  json: {\n    ...$input.item.json,\n    primaryFile: primary\n  },\n  binary: {\n    data: {\n      data: binaryBuffer.toString('base64'),\n      mimeType: mimeType,\n      fileName: fileName,\n      fileExtension: fileName.split('.').pop()\n    }\n  }\n};"
+      },
+      "id": "11574e94-879e-4201-8995-c60d415ba951",
+      "name": "Convert to Binary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -912,
+        0
       ]
     },
     {
       "parameters": {
         "method": "PUT",
-        "url": "=https://adb-2477674967236179.19.azuredatabricks.net/api/2.0/fs/files/Volumes/marketing_insight_prod/feedbackmanagement/raw_attachments/{{ $json.storedFileName ? encodeURIComponent($json.storedFileName) : 'missing_filename.bin' }}?overwrite=true",
+        "url": "=https://adb-2477674967236179.19.azuredatabricks.net/api/2.0/fs/files/Volumes/marketing_insight_prod/supportmanagement/raw_inputformattachment/{{ $json.primaryFile && $json.primaryFile.storedFileName ? $json.primaryFile.storedFileName : ($json.storedFileName || 'missing_filename.bin') }}?overwrite=true",
         "authentication": "genericCredentialType",
         "genericAuthType": "httpHeaderAuth",
-        "sendBinaryData": true,
-        "binaryPropertyName": "fileData",
         "sendHeaders": true,
         "headerParameters": {
           "parameters": [
@@ -399,21 +433,19 @@
             }
           ]
         },
-        "options": {
-          "response": {
-            "response": {
-              "responseFormat": "text"
-            }
-          }
-        }
+        "sendBody": true,
+        "contentType": "binaryData",
+        "binaryPropertyName": "data",
+        "inputDataFieldName": "data",
+        "options": {}
       },
-      "id": "68d62eb4-61c8-4bbc-a044-abccdc10e8b9",
+      "id": "aa18b338-baca-4cc6-8141-7fd30c37a94a",
       "name": "Upload to Databricks",
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1072,
-        576
+        -784,
+        0
       ],
       "credentials": {
         "httpHeaderAuth": {
@@ -424,15 +456,15 @@
     },
     {
       "parameters": {
-        "jsCode": "const parseForm = $('Parse Form').item.json;\n\nconst sessionId = parseForm.sessionId || '';\nconst email = parseForm.email || '';\nconst message = parseForm.message || '';\nconst language = parseForm.language || 'sv';\nconst timestamp = parseForm.timestamp || '';\nconst hasFile = parseForm.hasFile || false;\nconst storedFileName = parseForm.storedFileName || '';\nconst originalFileName = parseForm.fileName || '';\n\n// For files: use storedFileName, for no-file: use original filename\nconst fileName = hasFile ? storedFileName : originalFileName;\n\nconst downloadUrl = hasFile && storedFileName\n  ? `https://adb-2477674967236179.19.azuredatabricks.net/api/2.0/fs/files/Volumes/marketing_insight_prod/feedbackmanagement/raw_attachments/${encodeURIComponent(storedFileName)}`\n  : '';\n\nreturn [{\n  json: {\n    status: 'ok',\n    sessionId,\n    email,\n    message,\n    language,\n    timestamp,\n    fileName: fileName,\n    downloadUrl: downloadUrl\n  }\n}];"
+        "jsCode": "const parseForm = $('Parse Form').item.json;\n\nconst sessionId = parseForm.sessionId || '';\nconst email = parseForm.email || '';\nconst message = parseForm.message || '';\nconst language = parseForm.language || 'sv';\nconst timestamp = parseForm.timestamp || '';\nconst supportFlow = parseForm.supportFlow || 'customer';\nconst customerNumber = parseForm.customerNumber || '';\nconst contactPerson = parseForm.contactPerson || '';\nconst pncNumber = parseForm.pncNumber || '';\nconst serialNumber = parseForm.serialNumber || '';\nconst caseType = parseForm.caseType || '';\n\nconst files = Array.isArray(parseForm.files) ? parseForm.files : [];\nconst hasFile = parseForm.hasFile || files.length > 0;\nconst primaryFile = files[0];\n\nconst fileNames = files.map(f => f.fileName).join(', ');\nconst fileCount = files.length;\nconst storedFileName = primaryFile?.storedFileName || '';\nconst downloadUrl = hasFile && storedFileName\n  ? `https://adb-2477674967236179.19.azuredatabricks.net/api/2.0/fs/files/Volumes/marketing_insight_prod/supportmanagement/raw_inputformattachment/${encodeURIComponent(storedFileName)}`\n  : '';\n\nreturn [{\n  json: {\n    status: 'ok',\n    sessionId,\n    email,\n    message,\n    language,\n    supportFlow,\n    customerNumber,\n    contactPerson,\n    pncNumber,\n    serialNumber,\n    caseType,\n    timestamp,\n    hasFile,\n    fileNames,\n    fileCount,\n    primaryFileName: primaryFile?.fileName || '',\n    primaryStoredFileName: storedFileName,\n    downloadUrl\n  }\n}];"
       },
-      "id": "da7fff66-587e-4332-bad0-21198a2b5d11",
+      "id": "421003dc-2ee9-498f-b6ca-5e3f44633fec",
       "name": "Prepare Form Response",
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -928,
-        688
+        -640,
+        112
       ]
     },
     {
@@ -440,27 +472,35 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g",
+          "value": "1uiNECyY0HcF2mWlltqyAiFJJFFXgKsUM9e_GAGFF-Tc",
           "mode": "list",
-          "cachedResultName": "hsq-b2b-prototyp-feedbackcollection",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g/edit?usp=drivesdk"
+          "cachedResultName": "hsq-b2b-support",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uiNECyY0HcF2mWlltqyAiFJJFFXgKsUM9e_GAGFF-Tc/edit"
         },
         "sheetName": {
           "__rl": true,
           "value": 2068857508,
           "mode": "list",
           "cachedResultName": "form",
-          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1NYV47SSAdoBNcXv1uo_oEtZy2XloIn9sx-bwVMaXz8g/edit#gid=2068857508"
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1uiNECyY0HcF2mWlltqyAiFJJFFXgKsUM9e_GAGFF-Tc/edit#gid=2068857508"
         },
         "columns": {
           "mappingMode": "defineBelow",
           "value": {
             "Timestamp": "={{ $json.timestamp }}",
             "SessionID": "={{ $json.sessionId }}",
+            "SupportFlow": "={{ $json.supportFlow }}",
+            "CustomerNumber": "={{ $json.customerNumber }}",
+            "ContactPerson": "={{ $json.contactPerson }}",
+            "PNCNumber": "={{ $json.pncNumber }}",
+            "SerialNumber": "={{ $json.serialNumber }}",
+            "CaseType": "={{ $json.caseType }}",
             "Email": "={{ $json.email }}",
             "Message": "={{ $json.message }}",
-            "FileName": "={{ $json.fileName }}",
+            "FileNames": "={{ $json.fileNames }}",
+            "PrimaryFileName": "={{ $json.primaryFileName }}",
             "FileLink": "={{ $json.downloadUrl }}",
+            "FileCount": "={{ $json.fileCount }}",
             "Language": "={{ $json.language }}"
           },
           "matchingColumns": [],
@@ -477,6 +517,60 @@
             {
               "id": "SessionID",
               "displayName": "SessionID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SupportFlow",
+              "displayName": "SupportFlow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CustomerNumber",
+              "displayName": "CustomerNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ContactPerson",
+              "displayName": "ContactPerson",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PNCNumber",
+              "displayName": "PNCNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SerialNumber",
+              "displayName": "SerialNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CaseType",
+              "displayName": "CaseType",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -502,8 +596,17 @@
               "canBeUsedToMatch": true
             },
             {
-              "id": "FileName",
-              "displayName": "FileName",
+              "id": "FileNames",
+              "displayName": "FileNames",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PrimaryFileName",
+              "displayName": "PrimaryFileName",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -513,6 +616,15 @@
             {
               "id": "FileLink",
               "displayName": "FileLink",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FileCount",
+              "displayName": "FileCount",
               "required": false,
               "defaultMatch": false,
               "display": true,
@@ -534,13 +646,13 @@
         },
         "options": {}
       },
-      "id": "6045420e-b422-4fe5-ba00-bc9bd2587908",
+      "id": "6d8ea791-866a-49c1-ac61-e7584c1d58a7",
       "name": "Save Form to Sheets",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.4,
       "position": [
-        -720,
-        688
+        -432,
+        112
       ],
       "credentials": {
         "googleSheetsOAuth2Api": {
@@ -567,13 +679,13 @@
           }
         }
       },
-      "id": "55d94a02-a37f-4744-8e5a-e06e735e3060",
+      "id": "b6026c95-28e9-44a3-9794-1b2450b6e476",
       "name": "Respond Form",
       "type": "n8n-nodes-base.respondToWebhook",
       "typeVersion": 1,
       "position": [
-        -528,
-        688
+        -240,
+        112
       ]
     }
   ],
@@ -631,6 +743,13 @@
             "type": "main",
             "index": 0
           }
+        ],
+        [
+          {
+            "node": "Recover Response",
+            "type": "main",
+            "index": 0
+          }
         ]
       ]
     },
@@ -682,7 +801,7 @@
       "main": [
         [
           {
-            "node": "Upload to Databricks",
+            "node": "Convert to Binary",
             "type": "main",
             "index": 0
           }
@@ -690,6 +809,17 @@
         [
           {
             "node": "Prepare Form Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to Binary": {
+      "main": [
+        [
+          {
+            "node": "Upload to Databricks",
             "type": "main",
             "index": 0
           }
@@ -756,8 +886,10 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "fixed-form-no-file",
-  "meta": {},
-  "id": "hsq-b2b-prototyp-feedbackcollection",
+  "versionId": "2b0d1346-3e86-4a7c-ac10-f283cc1475f9",
+  "meta": {
+    "instanceId": "183fb5e57d328432216b670706832b8011f34731386077fbbeaafa6dc459918b"
+  },
+  "id": "JRSFnbFgOus5jdB1",
   "tags": []
 }

@@ -1,18 +1,23 @@
 {
-  "title": "Palaute",
-  "description": "Arvostamme palautettasi! Jaa ajatuksesi, ehdotuksesi tai ongelmasi.",
+  "title": "Tukipyyntö",
+  "description": "Ilmoita tukiongelma tai pyydä apua Husqvarnaan liittyen. Käytä chattia tai lomaketta ja liitä tarvittaessa tiedostoja.",
   "header": {
-    "title": "Palautekeskus",
-    "subtitle": "Auta meitä muotoilemaan Husqvarna Portalin tulevaisuutta"
+    "title": "Asiakastuki",
+    "subtitle": "Kerro, mihin tarvitset apua Husqvarnassa"
+  },
+  "flow": {
+    "customer": "Asiakastuki",
+    "technical": "Tekninen tuki"
   },
   "ai": {
-    "title": "Tekoäly-avustaja",
+    "title": "Tukichat",
     "powered": "Toimii n8n:n avulla",
-    "description": "Avustaja auttaa antamaan palautetta esittämällä jatkokysymyksiä, jotta voimme paremmin toimia ja luokitella"
+    "description": "Kuvaile asia chattiin – tallennamme tiedot tukitiimille."
   },
   "chat": {
-    "welcome": "Terve! Mitä haluat muuttaa portaalissa?",
-    "placeholder": "Kysy minulta mitä tahansa..."
+    "title": "Tukichat",
+    "welcome": "Hei! Missä tarvitset apua tänään?",
+    "placeholder": "Kuvaile ongelma tai pyyntö..."
   },
   "category": {
     "label": "Kategoria",
@@ -23,30 +28,66 @@
     "performance": "Suorituskyky"
   },
   "message": {
-    "label": "Palautteesi",
-    "placeholder": "Kuvaile palautteesi yksityiskohtaisesti..."
+    "label": "Kuvaus",
+    "placeholder": "Kuvaile ongelma, vaikutus ja mitä olet jo kokeillut..."
   },
   "email": {
-    "label": "Sähköposti (valinnainen)",
+    "label": "Sähköposti",
     "placeholder": "sinun@email.fi"
   },
+  "fields": {
+    "customerNumber": {
+      "label": "Asiakasnumero",
+      "placeholder": "Syötä asiakasnumero"
+    },
+    "contactPerson": {
+      "label": "Yhteyshenkilö",
+      "placeholder": "(valinnainen)"
+    },
+    "pncNumber": {
+      "label": "PNC-numero",
+      "placeholder": "Anna PNC-numero"
+    },
+    "serialNumber": {
+      "label": "Sarjanumero",
+      "placeholder": "Anna sarjanumero"
+    },
+    "type": {
+      "label": "Tyyppi",
+      "placeholder": "Valitse tyyppi",
+      "options": {
+        "other": "Muu",
+        "return": "Palautukset",
+        "services": "Husqvarnan palvelut",
+        "order": "Tilaus",
+        "automower": "Automower",
+        "training": "Koulutus",
+        "wheeled": "Pyörällinen",
+        "proRobotics": "Pro Robotics",
+        "handheld": "Käsikäyttöinen"
+      }
+    }
+  },
   "attachment": {
-    "label": "Liitä tiedosto (valinnainen)",
-    "button": "Valitse tiedosto",
+    "label": "Liitä tiedostoja (valinnainen)",
+    "button": "Lisää tiedostoja",
     "selected": "Valittu tiedosto:",
     "remove": "Poista"
   },
   "attachmentLimits": {
-    "allowedTypesLabel": "Sallitut tiedostotyypit:",
-    "allowedTypes": "PNG, JPG, PDF",
+    "allowedTypesLabel": "Tiedosto-ohje:",
+    "allowedTypes": "Kaikki tiedostotyypit. Kuvakaappaukset, lokit ja PDF:t käyvät.",
     "maxFilesLabel": "Tiedostojen enimmäismäärä:",
     "maxFiles": "5",
     "maxSizeLabel": "Suurin tiedostokoko per tiedosto:",
     "maxSize": "10 MB",
-    "note": "Yhteensä enintään 50 MB. Jopa 5 tiedostoa."
+    "note": "Kokoraja 50 Mt, enintään 5 tiedostoa."
   },
-  "submit": "Lähetä palaute",
+  "submit": "Lähetä tukipyyntö",
   "submitting": "Lähetetään...",
-  "success": "Kiitos palautteestasi!",
-  "error": "Jotain meni pieleen. Yritä uudelleen."
+  "success": "Olemme vastaanottaneet tukipyyntösi!",
+  "error": "Jotain meni pieleen. Yritä uudelleen.",
+  "errors": {
+    "required": "Seuraavat kentät ovat pakollisia"
+  }
 }

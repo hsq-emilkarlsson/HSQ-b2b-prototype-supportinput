@@ -1,18 +1,23 @@
 {
-  "title": "Retour d'information",
-  "description": "Nous apprécions vos commentaires ! Partagez vos réflexions, suggestions ou problèmes.",
+  "title": "Demande de support",
+  "description": "Signalez un problème ou demandez de l'aide pour Husqvarna. Utilisez le chat ou le formulaire et joignez des fichiers si besoin.",
   "header": {
-    "title": "Centre de feedback",
-    "subtitle": "Aidez-nous à façonner l'avenir du Husqvarna Portal"
+    "title": "Support client",
+    "subtitle": "Dites-nous sur quoi vous avez besoin d'aide pour Husqvarna"
+  },
+  "flow": {
+    "customer": "Support client",
+    "technical": "Support technique"
   },
   "ai": {
-    "title": "Assistant IA",
+    "title": "Chat de support",
     "powered": "Alimenté par n8n",
-    "description": "Un assistant pour vous aider à donner votre avis en posant des questions de suivi pour nous permettre d'agir et de catégoriser plus facilement"
+    "description": "Décrivez votre problème dans le chat, nous envoyons les détails à l'équipe support."
   },
   "chat": {
-    "welcome": "Bonjour ! Que aimeriez-vous changer dans le portail ?",
-    "placeholder": "Posez-moi n'importe quelle question..."
+    "title": "Chat de support",
+    "welcome": "Bonjour ! De quoi avez-vous besoin d'aide aujourd'hui ?",
+    "placeholder": "Décrivez votre problème ou votre demande..."
   },
   "category": {
     "label": "Catégorie",
@@ -23,30 +28,66 @@
     "performance": "Performance"
   },
   "message": {
-    "label": "Votre retour",
-    "placeholder": "Décrivez vos commentaires en détail..."
+    "label": "Description",
+    "placeholder": "Décrivez le problème, l'impact et ce que vous avez déjà essayé..."
   },
   "email": {
-    "label": "Email (facultatif)",
+    "label": "Email",
     "placeholder": "votre@email.fr"
   },
+  "fields": {
+    "customerNumber": {
+      "label": "Numéro client",
+      "placeholder": "Saisissez le numéro client"
+    },
+    "contactPerson": {
+      "label": "Contact",
+      "placeholder": "(facultatif)"
+    },
+    "pncNumber": {
+      "label": "Numéro PNC",
+      "placeholder": "Saisissez le numéro PNC"
+    },
+    "serialNumber": {
+      "label": "Numéro de série",
+      "placeholder": "Saisissez le numéro de série"
+    },
+    "type": {
+      "label": "Type",
+      "placeholder": "Choisissez le type",
+      "options": {
+        "other": "Autre",
+        "return": "Retours",
+        "services": "Services par Husqvarna",
+        "order": "Commande",
+        "automower": "Automower",
+        "training": "Formation",
+        "wheeled": "Sur roues",
+        "proRobotics": "Pro Robotics",
+        "handheld": "Portatif"
+      }
+    }
+  },
   "attachment": {
-    "label": "Joindre un fichier (facultatif)",
-    "button": "Choisir un fichier",
-    "selected": "Fichier sélectionné:",
+    "label": "Joindre des fichiers (facultatif)",
+    "button": "Ajouter des fichiers",
+    "selected": "Fichier sélectionné :",
     "remove": "Supprimer"
   },
   "attachmentLimits": {
-    "allowedTypesLabel": "Types de fichiers autorisés :",
-    "allowedTypes": "PNG, JPG, PDF",
+    "allowedTypesLabel": "Conseils fichiers :",
+    "allowedTypes": "Tous types de fichiers. Captures d'écran, journaux et PDF bienvenus.",
     "maxFilesLabel": "Nombre maximum de fichiers :",
     "maxFiles": "5",
     "maxSizeLabel": "Taille maximale par fichier :",
     "maxSize": "10 MB",
-    "note": "Total max 50 MB. Jusqu'à 5 fichiers."
+    "note": "Limite totale 50 MB, jusqu'à 5 fichiers."
   },
-  "submit": "Envoyer des commentaires",
+  "submit": "Envoyer une demande de support",
   "submitting": "Envoi en cours...",
-  "success": "Merci pour vos commentaires !",
-  "error": "Quelque chose s'est mal passé. Veuillez réessayer."
+  "success": "Nous avons reçu votre demande de support !",
+  "error": "Un problème est survenu. Veuillez réessayer.",
+  "errors": {
+    "required": "Les champs suivants sont obligatoires"
+  }
 }

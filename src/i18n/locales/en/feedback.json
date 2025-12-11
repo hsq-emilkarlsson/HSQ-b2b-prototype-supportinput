@@ -1,18 +1,23 @@
 {
-  "title": "Feedback",
-  "description": "We appreciate your feedback! Share your thoughts, suggestions, or issues.",
+  "title": "Support request",
+  "description": "Report an issue or ask for help with Husqvarna. Use chat or the form and attach files if needed.",
   "header": {
-    "title": "Feedback Center",
-    "subtitle": "Help us shape the future of Husqvarna Portal"
+    "title": "Customer Support",
+    "subtitle": "Tell us what you need help with for Husqvarna"
+  },
+  "flow": {
+    "customer": "Customer Support",
+    "technical": "Technical Support"
   },
   "ai": {
-    "title": "AI Assistant",
+    "title": "Support chat",
     "powered": "Powered by n8n",
-    "description": "An assistant to help you provide feedback by asking follow-up questions to make it easier for us to act and categorize"
+    "description": "Describe your issue in chat and we'll capture the details for our support team."
   },
   "chat": {
-    "welcome": "Hi! What would you like to change in the Portal?",
-    "placeholder": "Ask me anything..."
+    "title": "Support chat",
+    "welcome": "Hi! What do you need help with today?",
+    "placeholder": "Describe your issue or request..."
   },
   "category": {
     "label": "Category",
@@ -23,30 +28,66 @@
     "performance": "Performance"
   },
   "message": {
-    "label": "Your feedback",
-    "placeholder": "Describe your feedback in detail..."
+    "label": "Description",
+    "placeholder": "Describe the problem, impact, and any steps you've tried..."
   },
   "email": {
-    "label": "Email (optional)",
+    "label": "Email",
     "placeholder": "your@email.com"
   },
+  "fields": {
+    "customerNumber": {
+      "label": "Customer number",
+      "placeholder": "Enter customer number"
+    },
+    "contactPerson": {
+      "label": "Contact person",
+      "placeholder": "(optional)"
+    },
+    "pncNumber": {
+      "label": "PNC number",
+      "placeholder": "Enter PNC number"
+    },
+    "serialNumber": {
+      "label": "Serial number",
+      "placeholder": "Enter serial number"
+    },
+    "type": {
+      "label": "Type",
+      "placeholder": "Choose type",
+      "options": {
+        "other": "Other",
+        "return": "Returns",
+        "services": "Services by Husqvarna",
+        "order": "Order",
+        "automower": "Automower",
+        "training": "Training",
+        "wheeled": "Wheeled",
+        "proRobotics": "Pro Robotics",
+        "handheld": "Handheld"
+      }
+    }
+  },
   "attachment": {
-    "label": "Attach file (optional)",
-    "button": "Choose file",
+    "label": "Attach files (optional)",
+    "button": "Add files",
     "selected": "Selected file:",
     "remove": "Remove"
   },
   "attachmentLimits": {
-    "allowedTypesLabel": "Allowed file types:",
-    "allowedTypes": "PNG, JPG, PDF",
+    "allowedTypesLabel": "File guidance:",
+    "allowedTypes": "Any file type. Screenshots, logs, PDFs are welcome.",
     "maxFilesLabel": "Max number of files:",
     "maxFiles": "5",
     "maxSizeLabel": "Max file size per file:",
     "maxSize": "10 MB",
-    "note": "Total max 50 MB. Up to 5 files."
+    "note": "Total limit 50 MB across up to 5 files."
   },
-  "submit": "Submit feedback",
-  "submitting": "Submitting...",
-  "success": "Thank you for your feedback!",
-  "error": "Something went wrong. Please try again."
+  "submit": "Send support request",
+  "submitting": "Sending...",
+  "success": "We received your support request!",
+  "error": "Something went wrong. Please try again.",
+  "errors": {
+    "required": "The following fields are required"
+  }
 }

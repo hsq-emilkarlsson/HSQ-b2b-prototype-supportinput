@@ -1,18 +1,23 @@
 {
-  "title": "Tilbakemelding",
-  "description": "Vi setter pris på din tilbakemelding! Del dine tanker, forslag eller problemer.",
+  "title": "Supporthenvendelse",
+  "description": "Rapporter et supportproblem eller be om hjelp med Husqvarna. Bruk chatten eller skjemaet og legg ved filer ved behov.",
   "header": {
-    "title": "Tilbakemeldingssenter",
-    "subtitle": "Hjelp oss forme fremtiden til Husqvarna Portal"
+    "title": "Kundesupport",
+    "subtitle": "Fortell oss hva du trenger hjelp med for Husqvarna"
+  },
+  "flow": {
+    "customer": "Kundesupport",
+    "technical": "Teknisk support"
   },
   "ai": {
-    "title": "AI-assistent",
+    "title": "Supportchat",
     "powered": "Drevet av n8n",
-    "description": "En assistent som hjelper deg med å gi tilbakemelding ved å stille oppfølgingsspørsmål for å gjøre det enklere for oss å handle og kategorisere"
+    "description": "Beskriv saken din i chatten, så samler vi detaljer til supportteamet."
   },
   "chat": {
-    "welcome": "Hei! Hva vil du endre i Portalen?",
-    "placeholder": "Spør meg om hva som helst..."
+    "title": "Supportchat",
+    "welcome": "Hei! Hva trenger du hjelp med i dag?",
+    "placeholder": "Beskriv problemet eller forespørselen din..."
   },
   "category": {
     "label": "Kategori",
@@ -23,30 +28,66 @@
     "performance": "Ytelse"
   },
   "message": {
-    "label": "Din tilbakemelding",
-    "placeholder": "Beskriv din tilbakemelding i detalj..."
+    "label": "Beskrivelse",
+    "placeholder": "Beskriv problemet, påvirkningen og hva du allerede har prøvd..."
   },
   "email": {
-    "label": "E-post (valgfritt)",
+    "label": "E-post",
     "placeholder": "din@epost.no"
   },
+  "fields": {
+    "customerNumber": {
+      "label": "Kundenummer",
+      "placeholder": "Oppgi kundenummer"
+    },
+    "contactPerson": {
+      "label": "Kontaktperson",
+      "placeholder": "(valgfritt)"
+    },
+    "pncNumber": {
+      "label": "PNC-nummer",
+      "placeholder": "Oppgi PNC-nummer"
+    },
+    "serialNumber": {
+      "label": "Serienummer",
+      "placeholder": "Oppgi serienummer"
+    },
+    "type": {
+      "label": "Type",
+      "placeholder": "Velg type",
+      "options": {
+        "other": "Øvrig",
+        "return": "Returer",
+        "services": "Services fra Husqvarna",
+        "order": "Ordre",
+        "automower": "Automower",
+        "training": "Opplæring",
+        "wheeled": "Hjulbåret",
+        "proRobotics": "Pro Robotics",
+        "handheld": "Håndholdt"
+      }
+    }
+  },
   "attachment": {
-    "label": "Legg ved fil (valgfritt)",
-    "button": "Velg fil",
+    "label": "Legg ved filer (valgfritt)",
+    "button": "Legg til filer",
     "selected": "Valgt fil:",
     "remove": "Fjern"
   },
   "attachmentLimits": {
-    "allowedTypesLabel": "Tillatte filtyper:",
-    "allowedTypes": "PNG, JPG, PDF",
+    "allowedTypesLabel": "Filveiledning:",
+    "allowedTypes": "Alle filtyper. Skjermbilder, logger og PDF-er er velkomne.",
     "maxFilesLabel": "Maks antall filer:",
     "maxFiles": "5",
     "maxSizeLabel": "Maks filstørrelse per fil:",
     "maxSize": "10 MB",
-    "note": "Totalt maks 50 MB. Inntil 5 filer."
+    "note": "Totalgrense 50 MB for opptil 5 filer."
   },
-  "submit": "Send tilbakemelding",
+  "submit": "Send supporthenvendelse",
   "submitting": "Sender...",
-  "success": "Takk for din tilbakemelding!",
-  "error": "Noe gikk galt. Prøv igjen."
+  "success": "Vi har mottatt supporthenvendelsen din!",
+  "error": "Noe gikk galt. Prøv igjen.",
+  "errors": {
+    "required": "Følgende felt er påkrevd"
+  }
 }
